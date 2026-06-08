@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-6">
+        <div class="bg-slate-900 p-10 rounded-3xl border border-emerald-800 text-center w-full max-w-sm">
+            <h1 class="text-3xl font-bold text-emerald-400 mb-2">FARMSPHERICA</h1>
+            <p class="text-slate-500 mb-8">NEXUS // AUTHENTICATION</p>
+            <button id="google-btn" class="w-full bg-white text-black p-4 rounded-xl font-bold hover:bg-emerald-400 transition">
+                SIGN IN WITH GOOGLE
+            </button>
+        </div>
+    </div>
+
+    <div id="app" class="hidden p-8 max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-bold text-emerald-400">NEXUS // <span id="user-display"></span></h1>
+            <button onclick="location.reload()" class="text-xs text-rose-500 hover:underline">LOGOUT</button>
+        </header>
+        <div class="grid grid-cols-2 gap-8 h-[70vh]">
+            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 overflow-y-auto">
+                <h2 class="text-emerald-400 font-bold mb-4">KNOWLEDGE REPOSITORY</h2>
+                <div id="kb-list" class="space-y-3 text-sm"></div>
+            </section>
+            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 flex flex-col">
+                <div id="chat-log" class="flex-1 overflow-y-auto font-mono text-sm space-y-4 mb-4"></div>
+                <input id="chat-input" class="w-full bg-black p-4 rounded-xl border border-emerald-900 focus:outline-none" placeholder="Ask the Nexus anything...">
+            </section>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

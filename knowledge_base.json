@@ -1,0 +1,11 @@
+{
+  "company_name": "Farmspherica Innovations Pvt. Ltd.",
+  "founded": 2024,
+  "founder": "Akash Gupta",
+  "mission": "To revolutionize agriculture through innovative hydroponics technology.",
+  "location": "B K Birla Institute of Engineering & Technology, Pilani, Rajasthan",
+  "team": ["Akash Gupta", "Navaditya Singh Rana", "Tanya Gupta", "Ambika Swargiary", "Rahul Sangwan"],
+  "values": ["Sustainability", "Innovation", "Knowledge Sharing", "Community", "Resource Efficiency", "Integrity"],
+  "contact": { "phone": "+91 7459805391", "email": "farmsphericainnovations@gmail.com" },
+  "events": ["R.I.S.E. 2025", "Startup Mahakumbh 2025", "MANAGE Cohort 12"]
+}

@@ -1,0 +1,3 @@
+#chat-log::-webkit-scrollbar { width: 6px; }
+#chat-log::-webkit-scrollbar-thumb { background: #059669; }
+body { background: radial-gradient(circle at top right, #064e3b, #020617); }
