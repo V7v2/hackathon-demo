@@ -2,37 +2,1326 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Farmspherica Nexus — The world's most capable agricultural intelligence terminal. Real-time N-P-K telemetry, autonomous crop protocols, and closed-loop agronomy automation.">
+    <title>Farmspherica Nexus — Agricultural Intelligence Terminal</title>
+    <link rel="stylesheet" href="style-2.css">
+    <link rel="stylesheet" href="animations.css">
+    <script src="audio.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* ── Additional layout tokens not in style-2.css ── */
+
+        /* Scanline shimmer over hero */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.06) 2px,
+                rgba(0,0,0,0.06) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-section { position: relative; }
+        .hero-container { position: relative; z-index: 1; }
+
+        /* Secondary ambient glow — bottom-right pull */
+        .bg-gradient-glow-secondary {
+            position: fixed;
+            bottom: -10%;
+            right: -5%;
+            width: 60vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.04) 0%, transparent 65%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Tier badge shown in navbar */
+        .tier-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-left: 12px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+        .tier-badge.standard {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--matrix-green);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        .tier-badge.pro {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(0, 255, 136, 0.15));
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
+        }
+
+        /* ══ PRICING ══ */
+        .pricing-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        .pricing-section > p {
+            color: var(--text-muted);
+            margin-bottom: 50px;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            text-align: left;
+        }
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+            transition: border-color 0.25s, transform 0.25s;
+        }
+        .pricing-card:hover {
+            border-color: rgba(46, 204, 113, 0.35);
+            transform: translateY(-4px);
+        }
+        .pricing-card.featured {
+            background: rgba(46, 204, 113, 0.03);
+            border-color: rgba(46, 204, 113, 0.4);
+            position: relative;
+        }
+        .pricing-badge {
+            position: absolute;
+            top: -14px;
+            right: 20px;
+            background: var(--matrix-green);
+            color: var(--bg-dark);
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 1.5px;
+        }
+        .pricing-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .pricing-amount {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .pricing-amount.accent { color: var(--matrix-green); }
+        .pricing-amount span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .pricing-tagline {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 28px;
+            min-height: 60px;
+        }
+        .pricing-cta {
+            display: block;
+            text-align: center;
+            margin-bottom: 28px;
+            cursor: pointer;
+        }
+        .pricing-features {
+            list-style: none;
+            font-size: 0.9rem;
+            line-height: 2.1;
+        }
+        .pricing-features li { color: var(--text-muted); }
+        .pricing-features li strong { color: var(--text-main); }
+        .pricing-features li::before {
+            content: '✓ ';
+            color: var(--matrix-green);
+            font-weight: 700;
+        }
+
+        /* ══ ARCHITECTURE ══ */
+        .architecture-section {
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+            padding: 80px 40px 0 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        .architecture-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .architecture-copy { flex: 1; min-width: 300px; }
+        .architecture-copy h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        .architecture-copy p {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        .architecture-metrics {
+            flex: 1;
+            min-width: 300px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+        .metric-block {
+            border-left: 2px solid var(--matrix-green);
+            padding-left: 20px;
+            transition: border-color 0.2s;
+        }
+        .metric-block:hover { border-color: var(--neon-glow); }
+        .metric-value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .metric-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* ══ ARCHITECTURE LAYER DEEP SECTION ══ */
+        .arch-layer-section {
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+            padding: 0 40px;
+        }
+        .arch-layer-section h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .arch-layer-section > p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+        .arch-layer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 28px;
+        }
+        .arch-layer-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            backdrop-filter: blur(8px);
+            transition: border-color 0.25s, transform 0.25s;
+        }
+        .arch-layer-card:hover {
+            border-color: rgba(46, 204, 113, 0.4);
+            transform: translateY(-3px);
+        }
+        .arch-layer-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--matrix-green);
+        }
+        .arch-layer-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.65;
+        }
+
+        /* ══ CROP PROFILES ══ */
+        .crop-section {
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+            padding: 80px 40px 0 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        .crop-section h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .crop-section > p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+        .crop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .crop-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            backdrop-filter: blur(8px);
+            transition: border-color 0.25s, transform 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .crop-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--matrix-green), var(--neon-glow));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .crop-card:hover::before { opacity: 1; }
+        .crop-card:hover {
+            border-color: rgba(46, 204, 113, 0.4);
+            transform: translateY(-3px);
+        }
+        .crop-card .crop-icon {
+            font-size: 2rem;
+            margin-bottom: 14px;
+        }
+        .crop-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .crop-specs {
+            list-style: none;
+            font-size: 0.85rem;
+            line-height: 2;
+        }
+        .crop-specs li {
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(46, 204, 113, 0.06);
+            padding: 2px 0;
+        }
+        .crop-specs li span:last-child {
+            color: var(--text-main);
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        /* ══ FAQ SECTION ══ */
+        .faq-section {
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+            padding: 80px 40px 0 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        .faq-section h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .faq-section > p {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .faq-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.25s;
+        }
+        .faq-item:hover { border-color: rgba(46, 204, 113, 0.3); }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 28px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .faq-question:hover { color: var(--matrix-green); }
+        .faq-chevron {
+            font-size: 1.2rem;
+            transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            color: var(--matrix-green);
+        }
+        .faq-item.open .faq-chevron { transform: rotate(180deg); }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), padding 0.3s;
+            padding: 0 28px;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 400px;
+            padding: 0 28px 24px 28px;
+        }
+        .faq-answer p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* ══ NEXUS WALLET CARD ══ */
+        .wallet-section {
+            max-width: 1200px;
+            margin: 0 auto 100px auto;
+            padding: 80px 40px 0 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        .wallet-section h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .wallet-section > p {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 700px;
+        }
+        .wallet-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            align-items: flex-start;
+        }
+        .wallet-card {
+            flex: 1;
+            min-width: 320px;
+            max-width: 480px;
+            background: linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 12, 8, 0.95));
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-radius: 16px;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(46, 204, 113, 0.1);
+        }
+        .wallet-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--matrix-green), var(--neon-glow), var(--matrix-green));
+        }
+        .wallet-card-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+        .wallet-card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 1.25rem;
+            letter-spacing: 3px;
+            color: var(--text-main);
+            margin-bottom: 28px;
+            opacity: 0.85;
+        }
+        .wallet-balance-label {
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .wallet-balance {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--neon-glow);
+            margin-bottom: 24px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        .wallet-tier-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid rgba(46, 204, 113, 0.1);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .wallet-tier-row .tier-indicator {
+            font-weight: 700;
+            color: var(--matrix-green);
+        }
+        .wallet-actions {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .wallet-action-btn {
+            display: block;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 18px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: left;
+            font-family: inherit;
+        }
+        .wallet-action-btn:hover {
+            border-color: var(--matrix-green);
+            background: rgba(46, 204, 113, 0.06);
+            transform: translateY(-2px);
+        }
+        .wallet-action-btn small {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        /* Danger reset button variant */
+        .wallet-reset-btn {
+            border-color: rgba(255, 107, 107, 0.35);
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.04);
+        }
+        .wallet-reset-btn:hover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            box-shadow: 0 0 14px rgba(255, 107, 107, 0.25);
+            transform: translateY(-2px);
+        }
+        .wallet-reset-btn small {
+            color: rgba(255, 107, 107, 0.6);
+        }
+        .wallet-log {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(46, 204, 113, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+        .wallet-log::-webkit-scrollbar { width: 4px; }
+        .wallet-log::-webkit-scrollbar-thumb { background: rgba(46,204,113,0.2); border-radius: 4px; }
+        .wallet-log .log-credit { color: var(--neon-glow); }
+        .wallet-log .log-debit { color: #ff6b6b; }
+
+        /* ══ CHECKOUT MODAL ══ */
+        .checkout-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 12, 8, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .checkout-overlay.active { display: flex; }
+        .checkout-modal {
+            background: linear-gradient(145deg, #0a1a12, #040c08);
+            border: 1px solid rgba(46, 204, 113, 0.35);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 16px 64px rgba(0,0,0,0.6), 0 0 40px rgba(46, 204, 113, 0.08);
+            position: relative;
+        }
+        .checkout-modal h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .checkout-modal .checkout-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 28px;
+        }
+        .checkout-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(46, 204, 113, 0.08);
+            font-size: 0.9rem;
+        }
+        .checkout-detail-row .label { color: var(--text-muted); }
+        .checkout-detail-row .value { font-weight: 700; }
+        .checkout-detail-row .value.green { color: var(--neon-glow); }
+        .checkout-detail-row .value.red { color: #ff6b6b; }
+        .checkout-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+        .checkout-actions button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .checkout-cancel {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        .checkout-cancel:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        .checkout-confirm {
+            background: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            color: var(--bg-dark);
+        }
+        .checkout-confirm:hover {
+            background: var(--neon-glow);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+        }
+        .checkout-confirm:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--text-muted);
+            border-color: var(--text-muted);
+        }
+        .checkout-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .checkout-close:hover { color: var(--text-main); }
+        .checkout-msg {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            display: none;
+        }
+        .checkout-msg.success {
+            display: block;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: var(--neon-glow);
+        }
+        .checkout-msg.error {
+            display: block;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        /* Divider utility */
+        .section-divider {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+            border: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-title { font-size: 2rem; }
+            .hero-subtitle { font-size: 1rem; padding: 0 12px; }
+            .architecture-metrics, .features-grid, .pricing-grid, .arch-layer-grid, .crop-grid, .faq-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .architecture-inner, .wallet-container { 
+                flex-direction: column; 
+            }
+            .footer-bar { 
+                flex-direction: column; gap: 10px; text-align: center; 
+            }
+            .wallet-card, .pricing-card, .feature-card, .arch-layer-card, .crop-card, .faq-item { 
+                width: 100%; min-width: 100%; padding: 16px; box-sizing: border-box;
+            }
+            section, .hero-section, .navbar, .architecture-section, .wallet-section, .footer {
+                padding-left: 12px;
+                padding-right: 12px;
+                box-sizing: border-box;
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen">
-    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-6">
-        <div class="bg-slate-900 p-10 rounded-3xl border border-emerald-800 text-center w-full max-w-sm">
-            <h1 class="text-3xl font-bold text-emerald-400 mb-2">FARMSPHERICA</h1>
-            <p class="text-slate-500 mb-8">NEXUS // AUTHENTICATION</p>
-            <button id="google-btn" class="w-full bg-white text-black p-4 rounded-xl font-bold hover:bg-emerald-400 transition">
-                SIGN IN WITH GOOGLE
-            </button>
+<body>
+
+    <!-- Ambient gradient backdrops -->
+    <div class="bg-gradient-glow"></div>
+    <div class="bg-gradient-glow-secondary"></div>
+
+    <!-- ══ NAVIGATION ══════════════════════════════════════════════════ -->
+    <header class="navbar fade-in-up delay-1">
+        <div class="logo">FARMSPHERICA <span class="logo-accent">NEXUS</span><span class="tier-badge standard" id="navTierBadge">STANDARD</span></div>
+        <nav class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#crops">Crop Profiles</a>
+            <a href="#wallet">Wallet</a>
+            <a href="#architecture">Architecture</a>
+        </nav>
+        <a href="terminal.html" class="cta-btn mini-btn">Launch Terminal</a>
+    </header>
+
+    <!-- ══ HERO ════════════════════════════════════════════════════════ -->
+    <main class="hero-section">
+        <!-- Video Background Layer -->
+        <div style="position: absolute; inset: 0; z-index: 0; overflow: hidden; opacity: 0.6;">
+            <video src="for-index.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <!-- Bottom gradient to blend seamlessly into the dark background of the features section -->
+            <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(4, 12, 8, 0.2) 0%, rgba(4, 12, 8, 1) 98%);"></div>
+            <!-- Top gradient to prevent hard edge under the nav bar -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 150px; background: linear-gradient(to top, transparent, rgba(4, 12, 8, 0.8));"></div>
+        </div>
+
+        <div class="hero-container fade-in-up delay-2" style="position: relative; z-index: 1;">
+            <div class="badge">NEXUS CORE MATRIX V2.5 ONLINE</div>
+            <h1 class="hero-title">
+               <br>
+                <span class="gradient-text">Shaping the Future of Farming.</span>
+            </h1>
+            <p class="hero-subtitle">
+                Welcome to the frontier of closed-loop agronomy ecosystem monitoring. Farmspherica Nexus integrates raw multi-spectral field telemetry arrays with high-density LLM analytics pipelines to auto-stabilize crop infrastructure metrics in real time.
+            </p>
+            <div class="button-wrapper">
+                <a href="terminal.html" class="cta-btn primary-btn">Try FARMSPHERICA NEXUS</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- ══ FEATURES ════════════════════════════════════════════════════ -->
+    <section id="features" class="features-grid fade-in-up delay-3">
+        <div class="feature-card">
+            <div class="icon">📊</div>
+            <h3>Real-Time Telemetry Mapping</h3>
+            <p>Direct tracking modules streaming N-P-K levels, automated moisture balances, and microchemical anomalies instantly across dynamic field quadrants.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">⚡</div>
+            <h3>Typewriter Output Stream</h3>
+            <p>Advanced modular stream parsing protocols deliver raw tech-manifest readouts, network telemetry analysis logs, and zero-latency operational readouts character by character.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🌱</div>
+            <h3>Autonomous Preset Injection</h3>
+            <p>Preset optimization logic profiles perfectly tuned for Lettuce, Tomato, Spinach, and Strawberry architectures — deployed at the touch of a sub-panel layout.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🔒</div>
+            <h3>Encrypted Session Nodes</h3>
+            <p>Every conversation is tracked as a persistent local node with full rename, purge, and reload capabilities — secured under the AES-256 matrix cipher link layer.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🎛️</div>
+            <h3>Dual Theme Protocols</h3>
+            <p>Toggle between Agricultural Bio-Green and Cyberpunk Obsidian rendering modes from the Nexus Configuration modal — no refresh required.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🤖</div>
+            <h3>Gemini 1.5 Flash Core</h3>
+            <p>Powered by Google's Gemini 1.5 Flash model operating under a strict NEXUS-CORE V2.5 system persona — immersive, detailed, and relentlessly on-theme.</p>
+        </div>
+    </section>
+
+    <!-- ══ ARCHITECTURE LAYER ══════════════════════════════════════════ -->
+    <section class="arch-layer-section fade-in-up delay-4">
+        <div class="badge">ARCHITECTURE LAYER</div>
+        <h2>Deep Infrastructure Topology</h2>
+        <p>Farmspherica Nexus operates across three interconnected architecture layers, each engineered for deterministic performance and zero-trust security in high-throughput agricultural environments.</p>
+
+        <div class="arch-layer-grid">
+            <div class="arch-layer-card">
+                <h3>⟐ Telemetry Data Bus</h3>
+                <p>The foundational transport layer responsible for ingesting raw sensor payloads from distributed field quadrants. Each data packet is timestamped, checksummed, and routed through an asynchronous event pipeline operating at sub-15ms latency. The bus supports concurrent streams from up to 256 independent N-P-K probes, moisture capacitance arrays, and ambient luminance sensors — all multiplexed onto a single encrypted WebSocket channel.</p>
+            </div>
+            <div class="arch-layer-card">
+                <h3>⟐ Multi-Spectral Parsing Grid</h3>
+                <p>Sitting above the telemetry bus, the parsing grid decomposes raw sensor streams into structured analytical frames. Each frame undergoes spectral normalization, outlier rejection via Tukey fences, and temporal smoothing before being projected onto the operator's real-time dashboard. The grid auto-scales parsing workers based on incoming data volume, ensuring that peak harvest telemetry surges never degrade operator response times below the 60 FPS rendering target.</p>
+            </div>
+            <div class="arch-layer-card">
+                <h3>⟐ Encrypted Local Matrix Link</h3>
+                <p>The final layer bridges the cloud-resident parsing grid to the operator's local terminal session. All downstream data is encrypted using AES-256-GCM with ephemeral session keys derived via ECDH key exchange. The local matrix stores session nodes, conversation histories, and wallet states in the browser's localStorage — ensuring full offline resilience. Node data is never transmitted externally; the terminal operates as a sovereign, air-gapped intelligence console.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ CROP PROFILES ══════════════════════════════════════════════ -->
+    <section id="crops" class="crop-section fade-in-up delay-5">
+        <div class="badge">CROP BIO-OPTIMIZATION</div>
+        <h2>Autonomous Crop Configuration Profiles</h2>
+        <p>Each preset is a carefully calibrated optimization vector. The following profiles define the exact N-P-K ratios, target moisture percentages, and ambient threshold parameters deployed when an operator activates a crop preset from the terminal sub-panel.</p>
+
+        <div class="crop-grid">
+            <div class="crop-card">
+                <div class="crop-icon">🥬</div>
+                <h3>Lettuce</h3>
+                <ul class="crop-specs">
+                    <li><span>N-P-K Ratio</span><span>8 — 3 — 5</span></li>
+                    <li><span>Target Moisture</span><span>72%</span></li>
+                    <li><span>Ambient Temp</span><span>18 — 22°C</span></li>
+                    <li><span>Target EC</span><span>1.2 mS/cm</span></li>
+                    <li><span>pH Range</span><span>6.0 — 6.5</span></li>
+                    <li><span>Light Cycle</span><span>14h / 10h</span></li>
+                </ul>
+            </div>
+            <div class="crop-card">
+                <div class="crop-icon">🍅</div>
+                <h3>Tomato</h3>
+                <ul class="crop-specs">
+                    <li><span>N-P-K Ratio</span><span>5 — 8 — 10</span></li>
+                    <li><span>Target Moisture</span><span>65%</span></li>
+                    <li><span>Ambient Temp</span><span>21 — 27°C</span></li>
+                    <li><span>Target EC</span><span>2.5 mS/cm</span></li>
+                    <li><span>pH Range</span><span>5.8 — 6.3</span></li>
+                    <li><span>Light Cycle</span><span>16h / 8h</span></li>
+                </ul>
+            </div>
+            <div class="crop-card">
+                <div class="crop-icon">🥗</div>
+                <h3>Spinach</h3>
+                <ul class="crop-specs">
+                    <li><span>N-P-K Ratio</span><span>10 — 5 — 6</span></li>
+                    <li><span>Target Moisture</span><span>70%</span></li>
+                    <li><span>Ambient Temp</span><span>15 — 20°C</span></li>
+                    <li><span>Target EC</span><span>1.8 mS/cm</span></li>
+                    <li><span>pH Range</span><span>6.2 — 6.8</span></li>
+                    <li><span>Light Cycle</span><span>12h / 12h</span></li>
+                </ul>
+            </div>
+            <div class="crop-card">
+                <div class="crop-icon">🍓</div>
+                <h3>Strawberry</h3>
+                <ul class="crop-specs">
+                    <li><span>N-P-K Ratio</span><span>6 — 10 — 12</span></li>
+                    <li><span>Target Moisture</span><span>68%</span></li>
+                    <li><span>Ambient Temp</span><span>18 — 24°C</span></li>
+                    <li><span>Target EC</span><span>1.6 mS/cm</span></li>
+                    <li><span>pH Range</span><span>5.5 — 6.2</span></li>
+                    <li><span>Light Cycle</span><span>14h / 10h</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ PRICING ═════════════════════════════════════════════════════ -->
+    <section id="pricing" class="pricing-section" style="max-width: 1200px; margin: 0 auto 100px auto; padding: 80px 40px 0 40px; text-align: center; border-top: 1px solid var(--border-color);">
+        <h2>Choose your optimization tier</h2>
+        <p>Scale your biosphere management from a single greenhouse to a global production grid. All transactions settled in <strong style="color: var(--neon-glow);">Zeniths (ℤ)</strong>.</p>
+
+        <div class="pricing-grid">
+
+            <!-- Standard -->
+            <div class="pricing-card">
+                <div class="pricing-name">Nexus Standard</div>
+                <div class="pricing-amount">ℤ0 <span>/ month</span></div>
+                <p class="pricing-tagline">Your personal, proactive agricultural assistant for localized hydroponics setups and solo operators.</p>
+                <a class="cta-btn mini-btn pricing-cta" id="btnStandard" onclick="handlePricingClick('standard')">Get Started Free</a>
+                <ul class="pricing-features">
+                    <li>Access to core agricultural presets</li>
+                    <li>Live N-P-K telemetry chart streams</li>
+                    <li>Local browser storage node logs</li>
+                    <li>Audio HUD blip diagnostics engine</li>
+                    <li>Dual theme protocol switching</li>
+                </ul>
+            </div>
+
+            <!-- Pro Ultra -->
+            <div class="pricing-card featured">
+                <div class="pricing-badge">POPULAR</div>
+                <div class="pricing-name">Nexus Pro ultra</div>
+                <div class="pricing-amount accent">ℤ1,950 <span>/ month</span></div>
+                <p class="pricing-tagline">Unlock hyper-precision automated overrides and global biosphere clustering for enterprise-scale operations.</p>
+                <a class="cta-btn primary-btn pricing-cta" id="btnProUltra" style="padding: 10px 0; font-size: 0.95rem;" onclick="handlePricingClick('pro')">Upgrade Now</a>
+                <ul class="pricing-features">
+                    <li><strong>All Standard features included</strong></li>
+                    <li>Deep multi-spectral imaging pipelines</li>
+                    <li>Full automated kernel data overrides</li>
+                    <li>Dedicated secure cloud infrastructure</li>
+                    <li>Advanced quantum particle mesh models</li>
+                    <li>Priority 24/7 uplink support channel</li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══ NEXUS CORE WALLET ══════════════════════════════════════════ -->
+    <section id="wallet" class="wallet-section">
+        <div class="badge">NEXUS CORE WALLET</div>
+        <h2>Your Digital Zenith Vault</h2>
+        <p>A self-contained simulated payment terminal. Fund your wallet with virtual Zeniths, track transactions, and upgrade your tier — all secured locally on your machine via the Nexus Node Link Layer.</p>
+
+        <div class="wallet-container">
+            <!-- Visual Card -->
+            <div class="wallet-card">
+                <div class="wallet-card-label">NEXUS CORE WALLET CARD</div>
+                <div class="wallet-card-number" id="walletCardNumber">•••• •••• •••• ••••</div>
+                <div class="wallet-balance-label">AVAILABLE BALANCE</div>
+                <div class="wallet-balance" id="walletBalance">ℤ0.00</div>
+                <div class="wallet-tier-row">
+                    <span>Active Tier</span>
+                    <span class="tier-indicator" id="walletTier">STANDARD</span>
+                </div>
+            </div>
+
+            <!-- Wallet Actions -->
+            <div class="wallet-actions">
+                <button class="wallet-action-btn" id="btnProvisionFunds" onclick="provisionFunds()">
+                    Provision Virtual Funds
+                    <small>via Nexus Node Link Layer (farm-wallet.nexus.internal)</small>
+                </button>
+                <button class="wallet-action-btn" onclick="addCustomFunds()">
+                    Manual Zenith Injection
+                    <small>Enter a custom ℤ amount to add to your vault</small>
+                </button>
+                <button class="wallet-action-btn wallet-reset-btn" onclick="resetSystemState()" id="btnResetSystem" title="Reset all wallet data and downgrade tier to Standard">
+                    🗑 Reset System State
+                    <small>Zero balance · Clear logs · Downgrade tier to Standard</small>
+                </button>
+
+                <!-- Transaction Log -->
+                <div class="wallet-log" id="walletLog">
+                    <div style="color: rgba(46,204,113,0.4); text-align: center; padding: 12px;">— TRANSACTION LOG EMPTY —</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FAQ ═════════════════════════════════════════════════════════ -->
+    <section id="faq" class="faq-section">
+        <div class="badge">OPERATOR BRIEFING</div>
+        <h2>Frequently Asked Questions</h2>
+        <p>Addressing critical operational queries for Nexus terminal operators.</p>
+
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What is the real-time stream rendering latency?
+                    <span class="faq-chevron">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>The Nexus terminal renders typewriter output streams at sub-15ms latency per character frame. The underlying telemetry data bus operates asynchronously, meaning sensor data ingestion and LLM response streaming never block the UI render thread. The Chart.js visualization layer maintains a locked 60 FPS refresh rate even during peak telemetry surges. All timings are measured from payload receipt to DOM paint completion.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How is my session data secured under AES-256?
+                    <span class="faq-chevron">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Every conversation node, wallet state, and configuration setting is stored exclusively in your browser's localStorage. No data is transmitted to external servers. The system references AES-256-GCM as the cipher standard for the encrypted local matrix link layer. Session keys are derived via ECDH ephemeral key exchange during the boot sequence handshake. Your terminal operates as a sovereign, air-gapped intelligence console — your data never leaves your machine.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    How do I upgrade from Standard to Pro Ultra?
+                    <span class="faq-chevron">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>First, provision your Nexus Core Wallet with virtual Zeniths (ℤ) using the wallet section below. You'll need a minimum balance of ℤ1,950. Once funded, click the "Upgrade Now" button on the Pro Ultra pricing card. The checkout modal will verify your balance, deduct ℤ1,950, and instantly upgrade your active session tier badge to PRO ULTRA. Your tier status and remaining balance persist across page reloads via localStorage.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What crop presets are available in the terminal?
+                    <span class="faq-chevron">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>The terminal ships with four precision-tuned crop optimization profiles: Lettuce, Tomato, Spinach, and Strawberry. Each profile defines target N-P-K ratios, moisture percentages, ambient temperature thresholds, target EC (electrical conductivity), pH ranges, and light cycle durations. Operators can activate any preset with a single click from the terminal sub-panel, which automatically injects the crop parameters into the NEXUS-CORE system prompt for contextual analysis.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Can I use the system offline?
+                    <span class="faq-chevron">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>The terminal UI, wallet system, session nodes, and all local state management operate fully offline via localStorage. However, the AI response engine requires an active internet connection to reach the Gemini API endpoint. If the connection drops, previously cached conversation nodes remain fully accessible, and the wallet continues to function. The system gracefully degrades — displaying a NEXUS_ERROR connection status while preserving all local data integrity.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What are Zeniths (ℤ) and how do they work?
+                    <span class="faq-chevron">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Zeniths (ℤ) are the simulated digital currency used within the Farmspherica Nexus ecosystem. They exist purely as a demonstration of a self-contained payment and tier management system. Your Zenith balance is stored locally in your browser and persists across sessions. You can provision funds through the Nexus Node Link Layer, manually inject custom amounts, or purge your wallet state entirely. Zeniths have no real-world monetary value — they exist solely to power the simulated checkout experience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ SYSTEM SPECS DASHBOARD ═════════════════════════════════════ -->
+    <section id="architecture" class="architecture-section">
+        <div class="architecture-inner">
+            <div class="architecture-copy">
+                <div class="badge">SYSTEM SPECS</div>
+                <h2>Architected for high-fidelity biosystem operations.</h2>
+                <p>
+                    Farmspherica Nexus compiles live dataset updates onto local system contexts, rendering visual asset components at 60 FPS while querying underlying matrix nodes through an encrypted telemetry bus layer.
+                </p>
+            </div>
+
+            <div class="architecture-metrics">
+                <div class="metric-block">
+                    <div class="metric-value">0.9.4</div>
+                    <div class="metric-label">Secure Kernel Core</div>
+                </div>
+                <div class="metric-block">
+                    <div class="metric-value">&lt; 15ms</div>
+                    <div class="metric-label">Stream Rendering Latency</div>
+                </div>
+                <div class="metric-block">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Closed-Loop Automation</div>
+                </div>
+                <div class="metric-block">
+                    <div class="metric-value">24/7</div>
+                    <div class="metric-label">Telemetry Uplink Tracking</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════════ -->
+    <footer class="footer-bar">
+        <p>Farmspherica Bio-Industrial Group // Advanced Biosystems Division</p>
+        <p class="crypto-seal">Secure Connection Encrypted // Core Kernel 0.9.4</p>
+    </footer>
+
+    <!-- ══ CHECKOUT MODAL ═════════════════════════════════════════════ -->
+    <div class="checkout-overlay" id="checkoutOverlay">
+        <div class="checkout-modal">
+            <button class="checkout-close" onclick="closeCheckout()">&times;</button>
+            <h3 id="checkoutTitle">Tier Upgrade</h3>
+            <p class="checkout-subtitle" id="checkoutSubtitle">Review and confirm your tier change.</p>
+
+            <div class="checkout-detail-row">
+                <span class="label">Selected Tier</span>
+                <span class="value" id="checkoutTierName">—</span>
+            </div>
+            <div class="checkout-detail-row">
+                <span class="label">Cost</span>
+                <span class="value green" id="checkoutCost">—</span>
+            </div>
+            <div class="checkout-detail-row">
+                <span class="label">Wallet Balance</span>
+                <span class="value" id="checkoutBalance">—</span>
+            </div>
+            <div class="checkout-detail-row">
+                <span class="label">Balance After</span>
+                <span class="value" id="checkoutAfter">—</span>
+            </div>
+
+            <div class="checkout-actions">
+                <button class="checkout-cancel" onclick="closeCheckout()">Cancel</button>
+                <button class="checkout-confirm" id="checkoutConfirmBtn" onclick="confirmCheckout()">Confirm Upgrade</button>
+            </div>
+
+            <div class="checkout-msg" id="checkoutMsg"></div>
         </div>
     </div>
 
-    <div id="app" class="hidden p-8 max-w-7xl mx-auto">
-        <header class="flex justify-between items-center mb-10">
-            <h1 class="text-3xl font-bold text-emerald-400">NEXUS // <span id="user-display"></span></h1>
-            <button onclick="location.reload()" class="text-xs text-rose-500 hover:underline">LOGOUT</button>
-        </header>
-        <div class="grid grid-cols-2 gap-8 h-[70vh]">
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 overflow-y-auto">
-                <h2 class="text-emerald-400 font-bold mb-4">KNOWLEDGE REPOSITORY</h2>
-                <div id="kb-list" class="space-y-3 text-sm"></div>
-            </section>
-            <section class="bg-slate-900 p-8 rounded-3xl border border-slate-800 flex flex-col">
-                <div id="chat-log" class="flex-1 overflow-y-auto font-mono text-sm space-y-4 mb-4"></div>
-                <input id="chat-input" class="w-full bg-black p-4 rounded-xl border border-emerald-900 focus:outline-none" placeholder="Ask the Nexus anything...">
-            </section>
-        </div>
-    </div>
-    <script src="script.js"></script>
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- NEXUS WALLET ENGINE (localStorage-backed) -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <script>
+        /* ── WALLET STATE ─────────────────────────────────── */
+        const WALLET_KEY = 'nexusWallet';
+        const DEFAULT_WALLET = {
+            cardNumber: generateCardNumber(),
+            balance: 0,
+            tier: 'standard',
+            transactions: []
+        };
+
+        function getWallet() {
+            try {
+                const raw = localStorage.getItem(WALLET_KEY);
+                if (!raw) return { ...DEFAULT_WALLET, cardNumber: generateCardNumber() };
+                return JSON.parse(raw);
+            } catch {
+                return { ...DEFAULT_WALLET, cardNumber: generateCardNumber() };
+            }
+        }
+
+        function saveWallet(wallet) {
+            localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+        }
+
+        function generateCardNumber() {
+            const seg = () => Math.floor(1000 + Math.random() * 9000);
+            return `${seg()} ${seg()} ${seg()} ${seg()}`;
+        }
+
+        function generateTrackingId() {
+            return 'NXS-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        }
+
+        /* ── UI RENDER ────────────────────────────────────── */
+        function renderWallet() {
+            const w = getWallet();
+
+            // Card number
+            document.getElementById('walletCardNumber').textContent = w.cardNumber;
+
+            // Balance
+            document.getElementById('walletBalance').textContent = `ℤ${w.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            // Tier
+            const tierText = w.tier === 'pro' ? 'PRO ULTRA' : 'STANDARD';
+            document.getElementById('walletTier').textContent = tierText;
+
+            // Nav badge
+            const navBadge = document.getElementById('navTierBadge');
+            navBadge.textContent = tierText;
+            navBadge.className = w.tier === 'pro' ? 'tier-badge pro' : 'tier-badge standard';
+
+            // Pricing button states
+            const btnPro = document.getElementById('btnProUltra');
+            if (w.tier === 'pro') {
+                btnPro.textContent = 'Active';
+                btnPro.style.opacity = '0.5';
+                btnPro.style.pointerEvents = 'none';
+            } else {
+                btnPro.textContent = 'Upgrade Now';
+                btnPro.style.opacity = '1';
+                btnPro.style.pointerEvents = 'auto';
+            }
+
+            // Transaction log
+            const logEl = document.getElementById('walletLog');
+            if (w.transactions.length === 0) {
+                logEl.innerHTML = '<div style="color: rgba(46,204,113,0.4); text-align: center; padding: 12px;">— TRANSACTION LOG EMPTY —</div>';
+            } else {
+                logEl.innerHTML = w.transactions.slice().reverse().map(tx => {
+                    const cls = tx.type === 'credit' ? 'log-credit' : 'log-debit';
+                    const sign = tx.type === 'credit' ? '+' : '-';
+                    return `<div class="${cls}">[${tx.timestamp}] ${sign}ℤ${tx.amount.toLocaleString()} — ${tx.label} (${tx.trackingId})</div>`;
+                }).join('');
+                logEl.scrollTop = 0;
+            }
+        }
+
+        /* ── WALLET ACTIONS ───────────────────────────────── */
+        function provisionFunds() {
+            const w = getWallet();
+            const amount = 5000;
+            w.balance += amount;
+            w.transactions.push({
+                type: 'credit',
+                amount: amount,
+                label: 'NEXUS NODE LINK LAYER PROVISION',
+                trackingId: generateTrackingId(),
+                timestamp: new Date().toLocaleString('en-GB', { hour12: false })
+            });
+            saveWallet(w);
+            renderWallet();
+        }
+
+        function addCustomFunds() {
+            const input = prompt('Enter Zenith (ℤ) amount to inject:');
+            if (input === null) return;
+            const amount = parseFloat(input);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Invalid amount. Please enter a positive number.');
+                return;
+            }
+            const w = getWallet();
+            w.balance += amount;
+            w.transactions.push({
+                type: 'credit',
+                amount: amount,
+                label: 'MANUAL ZENITH INJECTION',
+                trackingId: generateTrackingId(),
+                timestamp: new Date().toLocaleString('en-GB', { hour12: false })
+            });
+            saveWallet(w);
+            renderWallet();
+        }
+
+        function resetWallet() {
+            if (!confirm('PURGE WARNING: This will erase your balance, transaction history, and reset your tier to Standard. Continue?')) return;
+            const fresh = { ...DEFAULT_WALLET, cardNumber: generateCardNumber() };
+            saveWallet(fresh);
+            renderWallet();
+        }
+
+        /* ── RESET SYSTEM STATE (fast, no extra confirm, for testing) ─── */
+        function resetSystemState() {
+            // Zero the wallet and drop back to Standard tier
+            const fresh = {
+                cardNumber: generateCardNumber(),
+                balance: 0,
+                tier: 'standard',
+                transactions: []
+            };
+            saveWallet(fresh);
+            renderWallet();
+
+            // Visual feedback flash on the reset button
+            const btn = document.getElementById('btnResetSystem');
+            if (btn) {
+                const orig = btn.textContent;
+                btn.textContent = '✓ State Cleared';
+                btn.style.borderColor = '#00ff88';
+                btn.style.color = '#00ff88';
+                setTimeout(() => {
+                    btn.innerHTML = '🗑 Reset System State<br><small>Zero balance · Clear logs · Downgrade tier to Standard</small>';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+        }
+
+        /* ── CHECKOUT FLOW ────────────────────────────────── */
+        let pendingCheckoutTier = null;
+
+        function handlePricingClick(tier) {
+            if (tier === 'standard') {
+                window.location.href = 'terminal.html';
+                return;
+            }
+
+            const w = getWallet();
+            if (w.tier === 'pro') return; // Already upgraded
+
+            pendingCheckoutTier = 'pro';
+            const cost = 1950;
+            const balance = w.balance;
+            const after = balance - cost;
+            const canAfford = after >= 0;
+
+            document.getElementById('checkoutTierName').textContent = 'Nexus Pro Ultra';
+            document.getElementById('checkoutCost').textContent = `ℤ${cost.toLocaleString()}`;
+            document.getElementById('checkoutBalance').textContent = `ℤ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            document.getElementById('checkoutAfter').textContent = canAfford
+                ? `ℤ${after.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                : 'INSUFFICIENT FUNDS';
+            document.getElementById('checkoutAfter').className = canAfford ? 'value green' : 'value red';
+
+            const confirmBtn = document.getElementById('checkoutConfirmBtn');
+            confirmBtn.disabled = !canAfford;
+
+            // Reset message
+            const msg = document.getElementById('checkoutMsg');
+            msg.className = 'checkout-msg';
+            msg.style.display = 'none';
+
+            document.getElementById('checkoutOverlay').classList.add('active');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutOverlay').classList.remove('active');
+            pendingCheckoutTier = null;
+        }
+
+        function confirmCheckout() {
+            if (!pendingCheckoutTier) return;
+            const w = getWallet();
+            const cost = 1950;
+
+            if (w.balance < cost) {
+                const msg = document.getElementById('checkoutMsg');
+                msg.textContent = 'ERROR: Insufficient Zenith balance. Provision more funds via the wallet.';
+                msg.className = 'checkout-msg error';
+                return;
+            }
+
+            // Deduct and upgrade
+            w.balance -= cost;
+            w.tier = 'pro';
+            w.transactions.push({
+                type: 'debit',
+                amount: cost,
+                label: 'TIER UPGRADE — NEXUS PRO ULTRA',
+                trackingId: generateTrackingId(),
+                timestamp: new Date().toLocaleString('en-GB', { hour12: false })
+            });
+            saveWallet(w);
+            renderWallet();
+
+            // Success message
+            const msg = document.getElementById('checkoutMsg');
+            msg.textContent = '✓ UPGRADE COMPLETE — Your session tier has been elevated to PRO ULTRA. All enhanced protocols are now active.';
+            msg.className = 'checkout-msg success';
+
+            // Disable confirm button
+            document.getElementById('checkoutConfirmBtn').disabled = true;
+
+            // Auto-close after delay
+            setTimeout(() => closeCheckout(), 3000);
+        }
+
+        /* ── FAQ ACCORDION ────────────────────────────────── */
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const wasOpen = item.classList.contains('open');
+
+            // Close all others
+            document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+
+            // Toggle current
+            if (!wasOpen) item.classList.add('open');
+        }
+
+        /* ── INITIALIZE ───────────────────────────────────── */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure wallet exists
+            const w = getWallet();
+            if (!localStorage.getItem(WALLET_KEY)) saveWallet(w);
+            renderWallet();
+        });
+    </script>
+
 </body>
 </html>
